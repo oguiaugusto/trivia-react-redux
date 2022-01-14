@@ -12,6 +12,7 @@ export const REQUEST_QUESTIONS = 'REQUEST_QUESTIONS';
 export const SUCCESS_QUESTIONS = 'SUCCESS_QUESTIONS';
 export const FAIL_QUESTIONS = 'REQUEST_QUESTIONS';
 export const EXPIRED_TOKEN = 'EXPIRED_TOKEN';
+export const SUM_SCORE = 'SUM_SCORE';
 
 const requestToken = () => ({ type: REQUEST_TOKEN });
 const successToken = (payload) => ({ type: SUCCESS_TOKEN, payload });
@@ -52,3 +53,5 @@ export const saveUserAct = (name, gravatarEmail) => ({
   name,
   gravatarEmail,
 });
+
+export const sumScoreAct = (score) => ({ type: SUM_SCORE, score });

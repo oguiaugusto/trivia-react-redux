@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { fetchQuestionsAct, fetchTokenAct } from '../redux/actions';
+import { fetchQuestionsAct, fetchTokenAct, sumScoreAct } from '../redux/actions';
 import '../styles/game.css';
 
 class GameScreen extends Component {
@@ -13,11 +13,14 @@ class GameScreen extends Component {
       index: 0,
       answered: false,
       allAnswers: [],
+
+      timer: 30,
     };
 
     this.setQuestion = this.setQuestion.bind(this);
-    this.setAnswerColor = this.setAnswerColor.bind(this);
+    this.handleAnswer = this.handleAnswer.bind(this);
     this.setAnswers = this.setAnswers.bind(this);
+    this.runTimer = this.runTimer.bind(this);
   }
 
   componentDidMount() {
@@ -35,6 +38,10 @@ class GameScreen extends Component {
         this.setQuestion();
       }
     });
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timerInterval);
   }
 
   setQuestion() {
@@ -57,11 +64,36 @@ class GameScreen extends Component {
     /* Source: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array */
     const allAnswers = (!incorrectAnswers) ? [] : [...incorrectAnswers, correctAnswer];
     if (incorrectAnswers) shuffleArray(allAnswers);
-    this.setState({ allAnswers });
+    this.setState({ allAnswers }, () => this.runTimer());
   }
 
-  setAnswerColor() {
-    this.setState({ answered: true });
+  handleAnswer({ target: { innerText } }) {
+    this.setState({ answered: true }, () => {
+      clearInterval(this.timerInterval);
+      const {
+        state: { question: { correct_answer: answer, difficulty }, timer },
+        props: { score: currentScore, sumScore },
+      } = this;
+      if (innerText === answer) {
+        const difficulties = { hard: 3, medium: 2, easy: 1 };
+
+        const MIN_SCORE = 10;
+        const score = MIN_SCORE + (timer * difficulties[difficulty]);
+        sumScore(currentScore + score);
+      }
+    });
+  }
+
+  runTimer() {
+    const SECOND = 1000;
+    this.timerInterval = setInterval(() => {
+      const { state: { timer } } = this;
+      if (timer !== 0) {
+        this.setState((p) => ({ timer: p.timer - 1 }));
+      } else {
+        this.setState({ answered: true });
+      }
+    }, SECOND);
   }
 
   render() {
@@ -71,6 +103,7 @@ class GameScreen extends Component {
         question: { correct_answer: correctAnswer },
         answered,
         allAnswers,
+        timer,
       },
       props: { isFetching },
     } = this;
@@ -83,6 +116,7 @@ class GameScreen extends Component {
 
     return (
       <div className="game-screen">
+        <p>{timer}</p>
         <div className="question">
           <p data-testid="question-category" className="question-category">
             {q.category}
@@ -99,7 +133,8 @@ class GameScreen extends Component {
                     data-testid="correct-answer"
                     type="button"
                     className={ correctAnswerClass }
-                    onClick={ this.setAnswerColor }
+                    onClick={ this.handleAnswer }
+                    disabled={ answered }
                   >
                     {ans}
                   </button>
@@ -111,7 +146,8 @@ class GameScreen extends Component {
                   key={ `answer-${i}` }
                   data-testid={ `wrong-answer-${wrongAnswerI}` }
                   className={ wrongAnswerClass }
-                  onClick={ this.setAnswerColor }
+                  onClick={ this.handleAnswer }
+                  disabled={ answered }
                 >
                   {ans}
                 </button>
@@ -131,11 +167,13 @@ const mapStateToProps = (state) => ({
   expiredToken: state.expiredToken,
   questions: state.questions,
   isFetching: state.isFetching,
+  score: state.player.score,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   fetchQuestions: (amount, token) => dispatch(fetchQuestionsAct(amount, token)),
   fetchToken: () => dispatch(fetchTokenAct()),
+  sumScore: (score) => dispatch(sumScoreAct(score)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(GameScreen);
@@ -147,6 +185,8 @@ GameScreen.propTypes = {
   fetchToken: PropTypes.func.isRequired,
   questions: PropTypes.arrayOf(PropTypes.any).isRequired,
   isFetching: PropTypes.bool,
+  sumScore: PropTypes.func.isRequired,
+  score: PropTypes.number.isRequired,
 };
 
 GameScreen.defaultProps = {
