@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { saveUserAct, fetchTokenAct } from '../redux/actions';
 
 class Login extends Component {
@@ -11,10 +11,12 @@ class Login extends Component {
     this.state = {
       email: '',
       name: '',
+      logged: false,
     };
 
     this.handleChange = this.handleChange.bind(this);
     this.disableBtn = this.disableBtn.bind(this);
+    this.handleBtn = this.handleBtn.bind(this);
   }
 
   handleChange({ target: { name, value } }) {
@@ -35,10 +37,19 @@ class Login extends Component {
     );
   }
 
+  handleBtn() {
+    const { state: { email, name }, props: { fetchToken, saveUser } } = this;
+    saveUser(name, email);
+    fetchToken().then(() => {
+      this.setState({ logged: true });
+    });
+  }
+
   render() {
-    const { state: { email, name }, props: { fetchToken } } = this;
+    const { state: { email, name, logged } } = this;
     const disableBtn = this.disableBtn();
-    const { saveUser } = this.props;
+
+    if (logged) return <Redirect to="/game" />;
 
     return (
       <div>
@@ -58,16 +69,14 @@ class Login extends Component {
           value={ name }
           onChange={ this.handleChange }
         />
-        <Link to="/game">
-          <button
-            data-testid="btn-play"
-            type="button"
-            disabled={ disableBtn }
-            onClick={ () => { saveUser(name, email); fetchToken(); } }
-          >
-            Play
-          </button>
-        </Link>
+        <button
+          data-testid="btn-play"
+          type="button"
+          disabled={ disableBtn }
+          onClick={ this.handleBtn }
+        >
+          Play
+        </button>
         <Link to="/settings">
           <button data-testid="btn-settings" type="button">Settings</button>
         </Link>

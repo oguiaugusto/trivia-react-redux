@@ -65,7 +65,7 @@ describe('5 - [TELA DE JOGO] Crie a página de jogo que deve conter as informaç
   beforeEach(loadQuestionsPage);
 
   it('Será validado se um token expirado da API é tratado corretamente', () => {
-    loadQuestionsPage(true, expiredTokenFetch);
+    loadQuestionsPage(true, expiredTokenFetch); 
     cy.window().then((win) => {
       expect(win.fetch).to.have.been.calledWith(FETCH_TOKEN_URL);
       expect(win.fetch).to.have.been.calledWith(BAD_QUESTIONS_URL);
