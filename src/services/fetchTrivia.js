@@ -11,8 +11,7 @@ export function fetchToken() {
 }
 
 export function fetchQuestions(amount, token) {
-  const URL_QUESTION = `https://opentdb.com/api.php?amount=${amount}&token=${token}
-  `;
+  const URL_QUESTION = `https://opentdb.com/api.php?amount=${amount}&token=${token}`;
 
   return baseFetch(URL_QUESTION);
 }
