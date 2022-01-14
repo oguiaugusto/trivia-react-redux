@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import userAction from '../redux/actions';
 
 class Login extends Component {
   constructor(props) {
@@ -35,6 +38,7 @@ class Login extends Component {
   render() {
     const { state: { email, name } } = this;
     const disableBtn = this.disableBtn();
+    const { userDispatch } = this.props;
 
     return (
       <div>
@@ -59,6 +63,7 @@ class Login extends Component {
             data-testid="btn-play"
             type="button"
             disabled={ disableBtn }
+            onClick={ () => userDispatch(name, email) }
           >
             Play
           </button>
@@ -68,4 +73,12 @@ class Login extends Component {
   }
 }
 
-export default Login;
+const mapDispatchToProps = (dispatch) => ({
+  userDispatch: (userName, email) => dispatch(userAction(userName, email)),
+});
+
+Login.propTypes = {
+  userDispatch: PropTypes.func.isRequired,
+};
+
+export default connect(null, mapDispatchToProps)(Login);
