@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { fetchQuestionsAct, fetchTokenAct } from '../redux/actions';
+import '../styles/game.css';
 
 class GameScreen extends Component {
   constructor(props) {
@@ -10,9 +11,13 @@ class GameScreen extends Component {
     this.state = {
       question: {},
       index: 0,
+      answered: false,
+      allAnswers: [],
     };
 
     this.setQuestion = this.setQuestion.bind(this);
+    this.setAnswerColor = this.setAnswerColor.bind(this);
+    this.setAnswers = this.setAnswers.bind(this);
   }
 
   componentDidMount() {
@@ -34,21 +39,15 @@ class GameScreen extends Component {
 
   setQuestion() {
     const { props: { questions }, state: { index } } = this;
-
-    this.setState({ question: questions[index] });
+    this.setState({ question: questions[index] }, () => this.setAnswers());
   }
 
-  render() {
+  setAnswers() {
     const {
       state: {
-        question: q,
         question: { incorrect_answers: incorrectAnswers, correct_answer: correctAnswer },
       },
-      props: { isFetching },
     } = this;
-
-    if (isFetching) return <h1>Loading</h1>;
-
     function shuffleArray(array) {
       for (let i = array.length - 1; i > 0; i -= 1) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -58,7 +57,29 @@ class GameScreen extends Component {
     /* Source: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array */
     const allAnswers = (!incorrectAnswers) ? [] : [...incorrectAnswers, correctAnswer];
     if (incorrectAnswers) shuffleArray(allAnswers);
+    this.setState({ allAnswers });
+  }
+
+  setAnswerColor() {
+    this.setState({ answered: true });
+  }
+
+  render() {
+    const {
+      state: {
+        question: q,
+        question: { correct_answer: correctAnswer },
+        answered,
+        allAnswers,
+      },
+      props: { isFetching },
+    } = this;
+
+    if (isFetching) return <h1>Loading</h1>;
+
     let wrongAnswerI = 0;
+    const wrongAnswerClass = answered ? 'wrong-answer' : '';
+    const correctAnswerClass = answered ? 'correct-answer' : '';
 
     return (
       <div className="game-screen">
@@ -77,6 +98,8 @@ class GameScreen extends Component {
                     key={ `answer-${i}` }
                     data-testid="correct-answer"
                     type="button"
+                    className={ correctAnswerClass }
+                    onClick={ this.setAnswerColor }
                   >
                     {ans}
                   </button>
@@ -87,6 +110,8 @@ class GameScreen extends Component {
                   type="button"
                   key={ `answer-${i}` }
                   data-testid={ `wrong-answer-${wrongAnswerI}` }
+                  className={ wrongAnswerClass }
+                  onClick={ this.setAnswerColor }
                 >
                   {ans}
                 </button>
