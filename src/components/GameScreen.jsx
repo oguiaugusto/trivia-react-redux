@@ -67,6 +67,19 @@ class GameScreen extends Component {
     this.setState({ allAnswers }, () => this.runTimer());
   }
 
+  handleNext = () => {
+    const { index } = this.state;
+    this.setState({
+      index: index + 1,
+    }, () => {
+      this.setQuestion();
+      this.setState({
+        answered: false,
+        timer: 30,
+      });
+    });
+  }
+
   handleAnswer({ target: { innerText } }) {
     this.setState({ answered: true }, () => {
       clearInterval(this.timerInterval);
@@ -156,6 +169,15 @@ class GameScreen extends Component {
               return answer;
             })}
           </div>
+          { answered && (
+            <button
+              type="button"
+              data-testid="btn-next"
+              onClick={ this.handleNext }
+            >
+              Próxima
+            </button>
+          )}
         </div>
       </div>
     );
