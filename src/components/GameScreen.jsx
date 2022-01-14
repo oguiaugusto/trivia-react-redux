@@ -13,11 +13,14 @@ class GameScreen extends Component {
       index: 0,
       answered: false,
       allAnswers: [],
+
+      timer: 30,
     };
 
     this.setQuestion = this.setQuestion.bind(this);
     this.setAnswerColor = this.setAnswerColor.bind(this);
     this.setAnswers = this.setAnswers.bind(this);
+    this.runTimer = this.runTimer.bind(this);
   }
 
   componentDidMount() {
@@ -35,6 +38,10 @@ class GameScreen extends Component {
         this.setQuestion();
       }
     });
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timerInterval);
   }
 
   setQuestion() {
@@ -57,11 +64,23 @@ class GameScreen extends Component {
     /* Source: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array */
     const allAnswers = (!incorrectAnswers) ? [] : [...incorrectAnswers, correctAnswer];
     if (incorrectAnswers) shuffleArray(allAnswers);
-    this.setState({ allAnswers });
+    this.setState({ allAnswers }, () => this.runTimer());
   }
 
   setAnswerColor() {
     this.setState({ answered: true });
+  }
+
+  runTimer() {
+    const SECOND = 1000;
+    this.timerInterval = setInterval(() => {
+      const { state: { timer } } = this;
+      if (timer !== 0) {
+        this.setState((p) => ({ timer: p.timer - 1 }));
+      } else {
+        this.setState({ answered: true });
+      }
+    }, SECOND);
   }
 
   render() {
@@ -71,6 +90,7 @@ class GameScreen extends Component {
         question: { correct_answer: correctAnswer },
         answered,
         allAnswers,
+        timer,
       },
       props: { isFetching },
     } = this;
@@ -83,6 +103,7 @@ class GameScreen extends Component {
 
     return (
       <div className="game-screen">
+        <p>{timer}</p>
         <div className="question">
           <p data-testid="question-category" className="question-category">
             {q.category}
@@ -100,6 +121,7 @@ class GameScreen extends Component {
                     type="button"
                     className={ correctAnswerClass }
                     onClick={ this.setAnswerColor }
+                    disabled={ answered }
                   >
                     {ans}
                   </button>
@@ -112,6 +134,7 @@ class GameScreen extends Component {
                   data-testid={ `wrong-answer-${wrongAnswerI}` }
                   className={ wrongAnswerClass }
                   onClick={ this.setAnswerColor }
+                  disabled={ answered }
                 >
                   {ans}
                 </button>
