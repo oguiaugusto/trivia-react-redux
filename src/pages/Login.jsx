@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { fetchTokenAct } from '../redux/actions';
+import { saveUserAct, fetchTokenAct } from '../redux/actions';
 
 class Login extends Component {
   constructor(props) {
@@ -38,6 +38,7 @@ class Login extends Component {
   render() {
     const { state: { email, name }, props: { fetchToken } } = this;
     const disableBtn = this.disableBtn();
+    const { saveUser } = this.props;
 
     return (
       <div>
@@ -62,7 +63,7 @@ class Login extends Component {
             data-testid="btn-play"
             type="button"
             disabled={ disableBtn }
-            onClick={ () => fetchToken() }
+            onClick={ () => { saveUser(name, email); fetchToken(); } }
           >
             Play
           </button>
@@ -76,11 +77,13 @@ class Login extends Component {
 }
 
 const mapDispatchToProps = (dispatch) => ({
+  saveUser: (userName, email) => dispatch(saveUserAct(userName, email)),
   fetchToken: () => dispatch(fetchTokenAct()),
 });
 
-export default connect(null, mapDispatchToProps)(Login);
-
 Login.propTypes = {
+  saveUser: PropTypes.func.isRequired,
   fetchToken: PropTypes.func.isRequired,
 };
+
+export default connect(null, mapDispatchToProps)(Login);

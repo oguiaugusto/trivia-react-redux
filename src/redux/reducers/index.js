@@ -1,10 +1,10 @@
-import { REQUEST_TOKEN, SUCCESS_TOKEN, FAIL_TOKEN } from '../actions';
+import { SAVE_USER, REQUEST_TOKEN, SUCCESS_TOKEN, FAIL_TOKEN } from '../actions';
 
 const INITIAL_STATE = {
   player: {
     name: '',
     assertions: '',
-    score: '',
+    score: 0,
     gravatarEmail: '',
   },
   isFetching: false,
@@ -14,6 +14,15 @@ const INITIAL_STATE = {
 
 export default function reducer(state = INITIAL_STATE, action) {
   switch (action.type) {
+  case SAVE_USER:
+    return {
+      ...state,
+      player: {
+        ...state.player,
+        gravatarEmail: action.gravatarEmail,
+        name: action.name,
+      },
+    };
   case REQUEST_TOKEN:
     return { ...state, isFetching: true };
   case SUCCESS_TOKEN:

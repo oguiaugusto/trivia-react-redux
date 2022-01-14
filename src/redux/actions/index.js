@@ -1,6 +1,7 @@
 import { fetchToken as fetchT } from '../../services/fetchTrivia';
 import { saveTokenToStorage } from '../../services/localStorage';
 
+export const SAVE_USER = 'SAVE_USER';
 export const REQUEST_TOKEN = 'REQUEST_TOKEN';
 export const SUCCESS_TOKEN = 'SUCCESS_TOKEN';
 export const FAIL_TOKEN = 'FAIL_TOKEN';
@@ -19,4 +20,8 @@ export const fetchTokenAct = () => (dispatch) => {
     .catch((err) => dispatch(failToken(err)));
 };
 
-export function fetchQuestions() {}
+export const saveUserAct = (name, gravatarEmail) => ({
+  type: SAVE_USER,
+  name,
+  gravatarEmail,
+});
