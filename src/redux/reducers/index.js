@@ -7,6 +7,7 @@ import {
   SUCCESS_QUESTIONS,
   FAIL_QUESTIONS,
   EXPIRED_TOKEN,
+  SUM_SCORE,
 } from '../actions';
 
 const INITIAL_STATE = {
@@ -53,6 +54,14 @@ export default function reducer(state = INITIAL_STATE, action) {
     return { ...state, isFetching: false, error: action.error, expiredToken: false };
   case EXPIRED_TOKEN:
     return { ...state, isFetching: false, expiredToken: true };
+  case SUM_SCORE:
+    return {
+      ...state,
+      player: {
+        ...state.player,
+        score: action.score,
+      },
+    };
   default:
     return state;
   }

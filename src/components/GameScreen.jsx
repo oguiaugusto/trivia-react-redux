@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { fetchQuestionsAct, fetchTokenAct } from '../redux/actions';
+import { fetchQuestionsAct, fetchTokenAct, sumScoreAct } from '../redux/actions';
 import '../styles/game.css';
 
 class GameScreen extends Component {
@@ -18,7 +18,7 @@ class GameScreen extends Component {
     };
 
     this.setQuestion = this.setQuestion.bind(this);
-    this.setAnswerColor = this.setAnswerColor.bind(this);
+    this.handleAnswer = this.handleAnswer.bind(this);
     this.setAnswers = this.setAnswers.bind(this);
     this.runTimer = this.runTimer.bind(this);
   }
@@ -67,8 +67,21 @@ class GameScreen extends Component {
     this.setState({ allAnswers }, () => this.runTimer());
   }
 
-  setAnswerColor() {
-    this.setState({ answered: true });
+  handleAnswer({ target: { innerText } }) {
+    this.setState({ answered: true }, () => {
+      clearInterval(this.timerInterval);
+      const {
+        state: { question: { correct_answer: answer, difficulty }, timer },
+        props: { score: currentScore, sumScore },
+      } = this;
+      if (innerText === answer) {
+        const difficulties = { hard: 3, medium: 2, easy: 1 };
+
+        const MIN_SCORE = 10;
+        const score = MIN_SCORE + (timer * difficulties[difficulty]);
+        sumScore(currentScore + score);
+      }
+    });
   }
 
   runTimer() {
@@ -120,7 +133,7 @@ class GameScreen extends Component {
                     data-testid="correct-answer"
                     type="button"
                     className={ correctAnswerClass }
-                    onClick={ this.setAnswerColor }
+                    onClick={ this.handleAnswer }
                     disabled={ answered }
                   >
                     {ans}
@@ -133,7 +146,7 @@ class GameScreen extends Component {
                   key={ `answer-${i}` }
                   data-testid={ `wrong-answer-${wrongAnswerI}` }
                   className={ wrongAnswerClass }
-                  onClick={ this.setAnswerColor }
+                  onClick={ this.handleAnswer }
                   disabled={ answered }
                 >
                   {ans}
@@ -154,11 +167,13 @@ const mapStateToProps = (state) => ({
   expiredToken: state.expiredToken,
   questions: state.questions,
   isFetching: state.isFetching,
+  score: state.player.score,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   fetchQuestions: (amount, token) => dispatch(fetchQuestionsAct(amount, token)),
   fetchToken: () => dispatch(fetchTokenAct()),
+  sumScore: (score) => dispatch(sumScoreAct(score)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(GameScreen);
@@ -170,6 +185,8 @@ GameScreen.propTypes = {
   fetchToken: PropTypes.func.isRequired,
   questions: PropTypes.arrayOf(PropTypes.any).isRequired,
   isFetching: PropTypes.bool,
+  sumScore: PropTypes.func.isRequired,
+  score: PropTypes.number.isRequired,
 };
 
 GameScreen.defaultProps = {

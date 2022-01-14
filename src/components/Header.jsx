@@ -8,7 +8,6 @@ class Header extends Component {
     super(props);
     this.state = {
       imageURL: '',
-      score: 0,
       isLoading: true,
     };
   }
@@ -28,8 +27,8 @@ class Header extends Component {
   };
 
   render() {
-    const { name } = this.props;
-    const { imageURL, isLoading, score } = this.state;
+    const { name, score } = this.props;
+    const { imageURL, isLoading } = this.state;
     return (
       !isLoading && (
         <div id="game-screen">
@@ -47,12 +46,13 @@ class Header extends Component {
 const mapStateToProps = (state) => ({
   gravatarEmail: state.player.gravatarEmail,
   name: state.player.name,
-  score: state.player.name,
+  score: state.player.score,
 });
 
 Header.propTypes = {
   gravatarEmail: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
+  score: PropTypes.number.isRequired,
 };
 
 export default connect(mapStateToProps)(Header);
