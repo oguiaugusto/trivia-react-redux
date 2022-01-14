@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import userAction from '../redux/actions';
+import { saveUserAct, fetchTokenAct } from '../redux/actions';
 
 class Login extends Component {
   constructor(props) {
@@ -36,9 +36,9 @@ class Login extends Component {
   }
 
   render() {
-    const { state: { email, name } } = this;
+    const { state: { email, name }, props: { fetchToken } } = this;
     const disableBtn = this.disableBtn();
-    const { userDispatch } = this.props;
+    const { saveUser } = this.props;
 
     return (
       <div>
@@ -63,10 +63,13 @@ class Login extends Component {
             data-testid="btn-play"
             type="button"
             disabled={ disableBtn }
-            onClick={ () => userDispatch(name, email) }
+            onClick={ () => { saveUser(name, email); fetchToken(); } }
           >
             Play
           </button>
+        </Link>
+        <Link to="/settings">
+          <button data-testid="btn-settings" type="button">Settings</button>
         </Link>
       </div>
     );
@@ -74,11 +77,13 @@ class Login extends Component {
 }
 
 const mapDispatchToProps = (dispatch) => ({
-  userDispatch: (userName, email) => dispatch(userAction(userName, email)),
+  saveUser: (userName, email) => dispatch(saveUserAct(userName, email)),
+  fetchToken: () => dispatch(fetchTokenAct()),
 });
 
 Login.propTypes = {
-  userDispatch: PropTypes.func.isRequired,
+  saveUser: PropTypes.func.isRequired,
+  fetchToken: PropTypes.func.isRequired,
 };
 
 export default connect(null, mapDispatchToProps)(Login);
