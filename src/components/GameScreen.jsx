@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 import { fetchQuestionsAct, fetchTokenAct, sumScoreAct } from '../redux/actions';
 import '../styles/game.css';
 
@@ -13,7 +14,7 @@ class GameScreen extends Component {
       index: 0,
       answered: false,
       allAnswers: [],
-
+      lastQuestion: false,
       timer: 30,
     };
 
@@ -67,6 +68,27 @@ class GameScreen extends Component {
     this.setState({ allAnswers }, () => this.runTimer());
   }
 
+  handleNext = () => {
+    const number = 4;
+    const { index } = this.state;
+    this.setState({
+      index: index + 1,
+    }, () => {
+      if (index === number) {
+        console.log('oiiiiiii');
+        this.setState({
+          lastQuestion: true,
+        });
+      } else {
+        this.setQuestion();
+        this.setState({
+          answered: false,
+          timer: 30,
+        });
+      }
+    });
+  }
+
   handleAnswer({ target: { innerText } }) {
     this.setState({ answered: true }, () => {
       clearInterval(this.timerInterval);
@@ -104,11 +126,14 @@ class GameScreen extends Component {
         answered,
         allAnswers,
         timer,
+        lastQuestion,
+
       },
       props: { isFetching },
     } = this;
 
     if (isFetching) return <h1>Loading</h1>;
+    if (lastQuestion) return <Redirect to="/feedback" />;
 
     let wrongAnswerI = 0;
     const wrongAnswerClass = answered ? 'wrong-answer' : '';
@@ -156,6 +181,15 @@ class GameScreen extends Component {
               return answer;
             })}
           </div>
+          { answered && (
+            <button
+              type="button"
+              data-testid="btn-next"
+              onClick={ this.handleNext }
+            >
+              Próxima
+            </button>
+          )}
         </div>
       </div>
     );
