@@ -25,15 +25,16 @@ class GameScreen extends Component {
   }
 
   componentDidMount() {
-    const { props: { fetchQuestions, token } } = this;
-    const DEFAULT_AMOUNT = 5;
+    const { props: { fetchQuestions, token, settings } } = this;
+    const { category, difficulty, type } = settings;
+    const parameters = [category, difficulty, type];
 
-    fetchQuestions(DEFAULT_AMOUNT, token).then(() => {
+    fetchQuestions(...parameters, token).then(() => {
       const { props: { fetchToken, expiredToken } } = this;
       if (expiredToken) {
         fetchToken().then(() => {
           const { props: { token: newToken } } = this;
-          fetchQuestions(DEFAULT_AMOUNT, newToken).then(() => this.setQuestion());
+          fetchQuestions(...parameters, newToken).then(() => this.setQuestion());
         });
       } else {
         this.setQuestion();
@@ -75,7 +76,6 @@ class GameScreen extends Component {
       index: index + 1,
     }, () => {
       if (index === number) {
-        console.log('oiiiiiii');
         this.setState({
           lastQuestion: true,
         });
@@ -202,10 +202,12 @@ const mapStateToProps = (state) => ({
   questions: state.questions,
   isFetching: state.isFetching,
   score: state.player.score,
+  settings: state.settings,
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  fetchQuestions: (amount, token) => dispatch(fetchQuestionsAct(amount, token)),
+  fetchQuestions: (cat, diff, type, token) => (
+    dispatch(fetchQuestionsAct(cat, diff, type, token))),
   fetchToken: () => dispatch(fetchTokenAct()),
   sumScore: (score) => dispatch(sumScoreAct(score)),
 });
@@ -221,6 +223,7 @@ GameScreen.propTypes = {
   isFetching: PropTypes.bool,
   sumScore: PropTypes.func.isRequired,
   score: PropTypes.number.isRequired,
+  settings: PropTypes.objectOf(PropTypes.string).isRequired,
 };
 
 GameScreen.defaultProps = {

@@ -1,13 +1,13 @@
 import {
   SAVE_USER,
-  REQUEST_TOKEN,
+  REQUEST_API,
   SUCCESS_TOKEN,
   FAIL_TOKEN,
-  REQUEST_QUESTIONS,
   SUCCESS_QUESTIONS,
   FAIL_QUESTIONS,
   EXPIRED_TOKEN,
   SUM_SCORE,
+  CHANGE_SETTINGS,
 } from '../actions';
 
 const INITIAL_STATE = {
@@ -17,6 +17,12 @@ const INITIAL_STATE = {
     score: 0,
     gravatarEmail: '',
   },
+  settings: {
+    category: '',
+    difficulty: '',
+    type: '',
+  },
+  filter: false,
   questions: [],
   expiredToken: false,
   isFetching: false,
@@ -35,14 +41,12 @@ export default function reducer(state = INITIAL_STATE, action) {
         name: action.name,
       },
     };
-  case REQUEST_TOKEN:
+  case REQUEST_API:
     return { ...state, isFetching: true };
   case SUCCESS_TOKEN:
     return { ...state, isFetching: false, token: action.payload.token };
   case FAIL_TOKEN:
     return { ...state, isFetching: false, error: action.error };
-  case REQUEST_QUESTIONS:
-    return { ...state, isFetching: true };
   case SUCCESS_QUESTIONS:
     return {
       ...state,
@@ -62,6 +66,8 @@ export default function reducer(state = INITIAL_STATE, action) {
         score: action.score,
       },
     };
+  case CHANGE_SETTINGS:
+    return { ...state, settings: action.payload, filter: true };
   default:
     return state;
   }
