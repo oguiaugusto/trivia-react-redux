@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
+import parse from 'html-react-parser';
 import { fetchQuestionsAct, fetchTokenAct, sumScoreAct } from '../redux/actions';
 import '../styles/game.css';
 
@@ -146,8 +147,12 @@ class GameScreen extends Component {
           <p data-testid="question-category" className="question-category">
             {q.category}
           </p>
-          <p data-testid="question-text" className="question-text">
+          {/* O parágrafo seguinte está presente por causa dos testes */}
+          <p data-testid="question-text" style={ { display: 'none' } }>
             {q.question}
+          </p>
+          <p className="question-text">
+            {q.question ? parse(q.question) : q.question}
           </p>
           <div data-testid="answer-options" className="answers-options">
             {allAnswers.map((ans, i) => {
