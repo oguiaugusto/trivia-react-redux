@@ -15,6 +15,7 @@ export const FAIL_QUESTIONS = 'REQUEST_QUESTIONS';
 export const EXPIRED_TOKEN = 'EXPIRED_TOKEN';
 export const SUM_SCORE = 'SUM_SCORE';
 export const CHANGE_SETTINGS = 'CHANGE_SETTINGS';
+export const SAVE_GRAVATAR = 'SAVE_GRAVATAR';
 
 const requestApi = () => ({ type: REQUEST_API });
 const successToken = (payload) => ({ type: SUCCESS_TOKEN, payload });
@@ -70,3 +71,4 @@ export const saveUserAct = (name, gravatarEmail) => ({
 
 export const sumScoreAct = (score) => ({ type: SUM_SCORE, score });
 export const changeSettingsAct = (payload) => ({ type: CHANGE_SETTINGS, payload });
+export const saveGravatarAct = (url) => ({ type: SAVE_GRAVATAR, url });
