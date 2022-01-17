@@ -18,25 +18,32 @@ class Feedback extends Component {
   }
 
   setMessage() {
-    const { props: { answers } } = this;
+    const { props: { assertions } } = this;
     const MIN = 3;
-    if (answers < MIN) this.setState({ feedbackMsg: 'Could be better...' });
-    if (answers >= MIN) this.setState({ feedbackMsg: 'Well Done!' });
+    if (assertions < MIN) this.setState({ feedbackMsg: 'Could be better...' });
+    if (assertions >= MIN) this.setState({ feedbackMsg: 'Well Done!' });
   }
 
   render() {
-    const { props: { gravatarImg, name, score }, state: { feedbackMsg } } = this;
-    console.log(gravatarImg);
+    const {
+      props: { gravatarImg, name, score, assertions },
+      state: { feedbackMsg } } = this;
 
     return (
       <div>
-        <h1 data-testid="feedback-text">{feedbackMsg}</h1>
-        <img src={ gravatarImg } alt="avatar" data-testid="header-profile-picture" />
-        <h2 data-testid="header-player-name">{name}</h2>
-        <p>
-          Score:
-          <span data-testid="header-score">{score}</span>
-        </p>
+        <header>
+          <h1 data-testid="feedback-text">{feedbackMsg}</h1>
+          <img src={ gravatarImg } alt="avatar" data-testid="header-profile-picture" />
+          <h2 data-testid="header-player-name">{name}</h2>
+          <p>
+            Score:
+            <span data-testid="header-score">{score}</span>
+          </p>
+        </header>
+        <div>
+          <span data-testid="feedback-total-score">{score}</span>
+          <p data-testid="feedback-total-question">{ assertions }</p>
+        </div>
       </div>
     );
   }
@@ -46,7 +53,7 @@ const mapStateToProps = (state) => ({
   gravatarImg: state.player.gravatarImg,
   name: state.player.name,
   score: state.player.score,
-  answers: state.player.answers,
+  assertions: state.player.assertions,
 });
 
 export default connect(mapStateToProps)(Feedback);
@@ -55,5 +62,5 @@ Feedback.propTypes = {
   gravatarImg: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   score: PropTypes.number.isRequired,
-  answers: PropTypes.number.isRequired,
+  assertions: PropTypes.number.isRequired,
 };
