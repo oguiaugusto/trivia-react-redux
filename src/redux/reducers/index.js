@@ -15,11 +15,10 @@ import {
 const INITIAL_STATE = {
   player: {
     name: '',
-    assertions: '',
+    assertions: 0,
     score: 0,
     gravatarEmail: '',
     gravatarImg: '',
-    answers: 0,
   },
   settings: {
     category: '',
@@ -75,9 +74,9 @@ export default function reducer(state = INITIAL_STATE, action) {
   case SAVE_GRAVATAR:
     return { ...state, player: { ...state.player, gravatarImg: action.url } };
   case SUM_ANSWERS: {
-    const { player: { answers } } = state;
-    const answersPoint = answers + 1;
-    return { ...state, player: { ...state.player, answers: answersPoint } };
+    const { player: { assertions } } = state;
+    const answersPoint = assertions + 1;
+    return { ...state, player: { ...state.player, assertions: answersPoint } };
   }
   default:
     return state;
