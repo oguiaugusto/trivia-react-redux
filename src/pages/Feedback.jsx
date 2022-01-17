@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 class Feedback extends Component {
   constructor(props) {
@@ -44,6 +45,9 @@ class Feedback extends Component {
           <span data-testid="feedback-total-score">{score}</span>
           <p data-testid="feedback-total-question">{ assertions }</p>
         </div>
+        <Link to="/">
+          <button type="button" data-testid="btn-play-again">Play again</button>
+        </Link>
       </div>
     );
   }
