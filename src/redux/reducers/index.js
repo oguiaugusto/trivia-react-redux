@@ -8,6 +8,8 @@ import {
   EXPIRED_TOKEN,
   SUM_SCORE,
   CHANGE_SETTINGS,
+  SAVE_GRAVATAR,
+  SUM_ANSWERS,
 } from '../actions';
 
 const INITIAL_STATE = {
@@ -16,6 +18,8 @@ const INITIAL_STATE = {
     assertions: '',
     score: 0,
     gravatarEmail: '',
+    gravatarImg: '',
+    answers: 0,
   },
   settings: {
     category: '',
@@ -68,6 +72,13 @@ export default function reducer(state = INITIAL_STATE, action) {
     };
   case CHANGE_SETTINGS:
     return { ...state, settings: action.payload, filter: true };
+  case SAVE_GRAVATAR:
+    return { ...state, player: { ...state.player, gravatarImg: action.url } };
+  case SUM_ANSWERS: {
+    const { player: { answers } } = state;
+    const answersPoint = answers + 1;
+    return { ...state, player: { ...state.player, answers: answersPoint } };
+  }
   default:
     return state;
   }

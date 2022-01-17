@@ -3,7 +3,12 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import parse from 'html-react-parser';
-import { fetchQuestionsAct, fetchTokenAct, sumScoreAct } from '../redux/actions';
+import {
+  fetchQuestionsAct,
+  fetchTokenAct,
+  sumScoreAct,
+  sumAnswersAct,
+} from '../redux/actions';
 import '../styles/game.css';
 
 class GameScreen extends Component {
@@ -95,7 +100,7 @@ class GameScreen extends Component {
       clearInterval(this.timerInterval);
       const {
         state: { question: { correct_answer: answer, difficulty }, timer },
-        props: { score: currentScore, sumScore },
+        props: { score: currentScore, sumScore, sumAnswers },
       } = this;
       if (innerText === answer) {
         const difficulties = { hard: 3, medium: 2, easy: 1 };
@@ -103,6 +108,7 @@ class GameScreen extends Component {
         const MIN_SCORE = 10;
         const score = MIN_SCORE + (timer * difficulties[difficulty]);
         sumScore(currentScore + score);
+        sumAnswers();
       }
     });
   }
@@ -166,7 +172,7 @@ class GameScreen extends Component {
                     onClick={ this.handleAnswer }
                     disabled={ answered }
                   >
-                    {ans}
+                    {parse(ans)}
                   </button>
                 );
               }
@@ -179,7 +185,7 @@ class GameScreen extends Component {
                   onClick={ this.handleAnswer }
                   disabled={ answered }
                 >
-                  {ans}
+                  {parse(ans)}
                 </button>
               );
               wrongAnswerI += 1;
@@ -215,6 +221,7 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(fetchQuestionsAct(cat, diff, type, token))),
   fetchToken: () => dispatch(fetchTokenAct()),
   sumScore: (score) => dispatch(sumScoreAct(score)),
+  sumAnswers: () => dispatch(sumAnswersAct()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(GameScreen);
@@ -229,6 +236,7 @@ GameScreen.propTypes = {
   sumScore: PropTypes.func.isRequired,
   score: PropTypes.number.isRequired,
   settings: PropTypes.objectOf(PropTypes.string).isRequired,
+  sumAnswers: PropTypes.func.isRequired,
 };
 
 GameScreen.defaultProps = {
