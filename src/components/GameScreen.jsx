@@ -9,6 +9,8 @@ import {
   sumScoreAct,
   sumAnswersAct,
 } from '../redux/actions';
+import Question from './Question';
+import { savePlayerToStorage } from '../services/localStorage';
 import '../styles/game.css';
 
 class GameScreen extends Component {
@@ -28,6 +30,7 @@ class GameScreen extends Component {
     this.handleAnswer = this.handleAnswer.bind(this);
     this.setAnswers = this.setAnswers.bind(this);
     this.runTimer = this.runTimer.bind(this);
+    this.savePlayer = this.savePlayer.bind(this);
   }
 
   componentDidMount() {
@@ -85,6 +88,7 @@ class GameScreen extends Component {
         this.setState({
           lastQuestion: true,
         });
+        this.savePlayer();
       } else {
         this.setQuestion();
         this.setState({
@@ -93,6 +97,11 @@ class GameScreen extends Component {
         });
       }
     });
+  }
+
+  savePlayer() {
+    const { props: { player } } = this;
+    savePlayerToStorage(player);
   }
 
   handleAnswer({ target: { innerText } }) {
@@ -149,59 +158,50 @@ class GameScreen extends Component {
     return (
       <div className="game-screen">
         <p>{timer}</p>
-        <div className="question">
-          <p data-testid="question-category" className="question-category">
-            {q.category}
-          </p>
-          {/* O parágrafo seguinte está presente por causa dos testes */}
-          <p data-testid="question-text" style={ { display: 'none' } }>
-            {q.question}
-          </p>
-          <p className="question-text">
-            {q.question ? parse(q.question) : q.question}
-          </p>
-          <div data-testid="answer-options" className="answers-options">
-            {allAnswers.map((ans, i) => {
-              if (ans === correctAnswer) {
-                return (
-                  <button
-                    key={ `answer-${i}` }
-                    data-testid="correct-answer"
-                    type="button"
-                    className={ correctAnswerClass }
-                    onClick={ this.handleAnswer }
-                    disabled={ answered }
-                  >
-                    {parse(ans)}
-                  </button>
-                );
-              }
-              const answer = (
+        <Question
+          q={ q }
+        />
+        <div data-testid="answer-options" className="answers-options">
+          {allAnswers.map((ans, i) => {
+            if (ans === correctAnswer) {
+              return (
                 <button
-                  type="button"
                   key={ `answer-${i}` }
-                  data-testid={ `wrong-answer-${wrongAnswerI}` }
-                  className={ wrongAnswerClass }
+                  data-testid="correct-answer"
+                  type="button"
+                  className={ correctAnswerClass }
                   onClick={ this.handleAnswer }
                   disabled={ answered }
                 >
                   {parse(ans)}
                 </button>
               );
-              wrongAnswerI += 1;
-              return answer;
-            })}
-          </div>
-          { answered && (
-            <button
-              type="button"
-              data-testid="btn-next"
-              onClick={ this.handleNext }
-            >
-              Próxima
-            </button>
-          )}
+            }
+            const answer = (
+              <button
+                type="button"
+                key={ `answer-${i}` }
+                data-testid={ `wrong-answer-${wrongAnswerI}` }
+                className={ wrongAnswerClass }
+                onClick={ this.handleAnswer }
+                disabled={ answered }
+              >
+                {parse(ans)}
+              </button>
+            );
+            wrongAnswerI += 1;
+            return answer;
+          })}
         </div>
+        { answered && (
+          <button
+            type="button"
+            data-testid="btn-next"
+            onClick={ this.handleNext }
+          >
+            Próxima
+          </button>
+        )}
       </div>
     );
   }
@@ -214,6 +214,7 @@ const mapStateToProps = (state) => ({
   isFetching: state.isFetching,
   score: state.player.score,
   settings: state.settings,
+  player: state.player,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -237,6 +238,7 @@ GameScreen.propTypes = {
   score: PropTypes.number.isRequired,
   settings: PropTypes.objectOf(PropTypes.string).isRequired,
   sumAnswers: PropTypes.func.isRequired,
+  player: PropTypes.objectOf(PropTypes.any).isRequired,
 };
 
 GameScreen.defaultProps = {
